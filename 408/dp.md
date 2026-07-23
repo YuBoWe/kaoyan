@@ -653,7 +653,7 @@ Algorithm SEU_DiagonalJump_Compact(Grid, N, M):
 
 $dp[i][j]$ 的终极含义是： **面对前 $i$ 个物品，在背包容量刚好为 $j$ 的限制下，你能装出的最大总价值。**
 
-```
+```c
 Algorithm ZeroOneKnapsack(w, v, N, W):
     // w 是重量数组，v 是价值数组，假设下标从 1 开始到 N
     // N 是物品总数，W 是背包最大承重
@@ -686,6 +686,77 @@ Algorithm ZeroOneKnapsack(w, v, N, W):
     // 3. 大结局
     // 站在最后一个物品面前，拥有最大容量 W 时，就是我们要的最终答案
     RETURN dp[N][W]
+```
+
+
+
+2.给你一个只包含正整数的非空数组 nums。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
+
+【示例 1】
+
+输入： nums = [1, 5, 11, 5]输出： true解释： 数组可以分割成 [1, 5, 5] 和 [11]。
+
+【示例 2】
+
+输入： nums = [1, 2, 3, 5]输出： false解释： 数组不能分割成两个元素和相等的子集。
+
+【数据范围】
+
+1 <= nums.length <= 200
+
+1 <= nums[i] <= 100
+
+```c
+Algorithm CanPartition(nums):
+    // nums 是正整数数组，假设下标从 1 开始到 N
+    N = length(nums)
+    
+    // 0. 前置计算：求数组元素总和
+    sum = 0
+    FOR i = 1 TO N DO:
+        sum = sum + nums[i]
+    END FOR
+    
+    // 如果总和为奇数，不可能平分为两个和相等的整数子集
+    IF sum % 2 != 0 THEN
+        RETURN false
+    END IF
+    
+    Target = sum / 2
+    
+    // 1. 初始化 DP 表格 (大小开 N+1 行，Target+1 列)
+    // 默认全填 false，dp[i][j] 表示前 i 个物品能否凑出恰好为 j 的和
+    定义二维布尔数组 dp[N+1][Target+1] = {false}
+    
+    // 边界条件：目标和为 0 时，什么都不选即满足条件
+    FOR i = 0 TO N DO:
+        dp[i][0] = true
+    END FOR
+    
+    // 2. 核心状态转移
+    // i 代表当前正在考虑第 i 个数值
+    FOR i = 1 TO N DO:
+        
+        // j 代表当前假设的目标和 (从 1 遍历到最大目标和 Target)
+        FOR j = 1 TO Target DO:
+            
+            // 选项 A：这个数值太大了，当前的目标和 j 根本装不下
+            IF nums[i] > j THEN
+                // 只能选择不装，完全继承前 i-1 个元素在目标和 j 下的结果
+                dp[i][j] = dp[i-1][j]
+                
+            // 选项 B：能装得下，二选一（只要有一个能凑成即可）
+            ELSE
+                // 逻辑“或”运算：不选当前数 OR 选当前数
+                dp[i][j] = dp[i-1][j] OR dp[i-1][j - nums[i]]
+            END IF
+            
+        END FOR
+    END FOR
+    
+    // 3. 大结局
+    // 站在最后一个元素面前，目标和恰好为 Target 时，就是我们要的最终答案
+    RETURN dp[N][Target]
 ```
 
 
