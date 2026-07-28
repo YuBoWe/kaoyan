@@ -599,7 +599,7 @@ Algorithm MinStepsWithTwoBombs(Grid, N, M):
 
 12.走格子，拿最大收益，一次瞬移(i, j)到(i+1, j+1)，有负权值，只能向右或者向下
 
-```
+```c
 Algorithm SEU_DiagonalJump_Compact(Grid, N, M):
     
     // 1. 初始化两页小抄，全部铺满 -∞
@@ -912,6 +912,56 @@ Algorithm TargetSum(nums, target):
     
     // 4. 大结局
     RETURN dp[N][P]
+```
+
+5.0和1
+
+给你一个二进制字符串数组 `strs` 和两个整数 `m` 和 `n` 。
+
+请你找出并返回 `strs` 的**最大子集**的大小，该子集中**最多**有 `m` 个 `0` 和 `n` 个 `1` 
+
+```c
+Algorithm OnesAndZeroes_3D(strs, m, n):
+    // N 是字符串的总数量
+    N = length(strs)
+    
+    // 1. 初始化三维 DP 表格
+    // dp[i][j][k] 表示：只考虑前 i 个字符串，在最多有 j 个 0 和 k 个 1 时，最多能装的字符串个数
+    // 维度大小：[N+1][m+1][n+1]，全部初始化为 0
+    定义三维整数数组 dp[N+1][m+1][n+1] = {0}
+    
+    // 2. 核心状态转移
+    // 外层循环：遍历每一个“物品”（前 i 个字符串）
+    FOR i = 1 TO N DO:
+        
+        // 统计当前第 i 个字符串（注意数组下标可能是 i-1）所需的费用
+        zeros = countZeros(strs[i]) 
+        ones = countOnes(strs[i])   
+        
+        // 内层循环：遍历背包容量
+        // 【核心优势】：因为有维度 i 的隔离，这里的 j 和 k 无论是正序还是逆序遍历，都完全可以！
+        FOR j = 0 TO m DO:
+            FOR k = 0 TO n DO:
+                
+                // 选项 A：当前的容量 j 或 k 不足以装下这个字符串
+                IF j < zeros OR k < ones THEN
+                    // 只能不装，直接照抄上一层（前 i-1 个字符串）的答案
+                    dp[i][j][k] = dp[i-1][j][k]
+                    
+                // 选项 B：容量足够，抉择“装”还是“不装”
+                ELSE
+                    // 不装：dp[i-1][j][k]
+                    // 装：1 + 扣除容量后，去【上一层】找最大数量，即 dp[i-1][j - zeros][k - ones]
+                    dp[i][j][k] = max(dp[i-1][j][k], 1 + dp[i-1][j - zeros][k - ones])
+                END IF
+                
+            END FOR
+        END FOR
+    END FOR
+    
+    // 3. 计算大结局
+    // 考虑完所有 N 个字符串，拥有 m 个 0 和 n 个 1 时的最大数量
+    RETURN dp[N][m][n]
 ```
 
 
